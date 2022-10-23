@@ -1,0 +1,77 @@
+// SPDX-License-Identifier: MIT
+import "./2_Seller.sol";
+import "./3_Buyer.sol";
+
+
+
+pragma solidity >=0.4.22 <0.9.0;
+
+
+contract Freight{
+    Buyer B;
+    uint ExpoCount = 1;
+    address fbacc;
+    uint fc = 10;
+    Seller s;
+    struct fbook{
+        uint oid;
+        uint pid;
+        string name;
+        uint40 ph;
+        string addrss;
+        string email;
+        bool bkd;
+    }
+    mapping (uint => fbook) internal FBooks;
+
+    struct proddel{
+        uint expoid;
+        uint oid;
+        uint pid;
+        bool handovr;
+        bool delstrat;
+        bool expoClr;
+        bool impoClr;
+        bool delivered;
+    }
+    mapping (uint => proddel) public ProdDels;
+
+    constructor (address adr){
+        fbacc = adr;
+    }
+
+    modifier onlyFreighter() {
+        require(msg.sender == fbacc,"Not Freighter");
+        _;
+    }
+
+    function bookff(uint oid, address seller) external returns (bool,uint,address){
+        s = Seller(seller);
+        (uint pid,string memory name,string memory addrss,uint40 ph,string memory email) = s.fv(oid);
+        FBooks[oid] = fbook(oid,pid,name,ph,addrss,email,true);
+        return (true,fc,fbacc);
+    }
+
+    function picOdr(uint oid) public onlyFreighter {
+        uint pID = s.giveAway(oid);
+        ProdDels[ExpoCount] = proddel(ExpoCount,oid,pID,true,false,false,false,false);
+        ExpoCount++;
+    }
+
+    function stratdel(uint expoid) public onlyFreighter {
+        ProdDels[expoid].delstrat = true;
+    }
+
+    function expoClrnc(uint expoid) public onlyFreighter{
+        ProdDels[expoid].expoClr = true;
+    }
+
+    function impoClrnc(uint _ExpoID) public onlyFreighter{
+        ProdDels[_ExpoID].impoClr = true;
+    }
+
+    function Delivery(uint _ExpoID) public onlyFreighter {
+        ProdDels[_ExpoID].delivered = true;
+    }
+    
+}

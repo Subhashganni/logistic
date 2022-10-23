@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My First dApp</title>
+        <style>
+            body {
+                text-align: center;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            div {
+                width: 20%;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+                margin: 10px 0px 5px 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1>Buyer Zone</h1>
+            <p>Add product details</p>
+            <button onclick="addproductdetails()">Add product</button>
+            <p>get product details</p>
+            <button onclick="getproductdetails()">Get product</button>
+            <p>buy the best product and delivered to home </p>
+            <button onclick="getPrice()">Get Price</button>
+            <label for="currentPrice" id="currentPrice"> </label> <br />
+            <label for="purchaseAmount">enter the price amount:</label> 
+            <input type="text" id="purchaseAmount" />
+            <button onclick="buy()">Buy</button>
+        </div>
+    </body>
+     <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.1/ethers.umd.js"
+        type="application/javascript"
+    ></script>
+
+    <script>
+        
+        
+        let SellerContract;
+      
+        let signer;
+        let provider;
+        let accounts;
+        let SellerContractABI;
+        
+        let SellerContractAddress;
+        
+        
+        async function add() {
+  const name = document.getElementById("name").value;
+  const pp = document.getElementById("pp").value;
+  const desc = document.getElementById("desc").value;
+  console.log(await Seller.addProduct(name,desc,pp));
+  alert("Products added successfully.");
+ 
+}
+ 
+async function requestQuote() {
+  const PID = document.getElementById("pid").value;
+  await Seller.requestQuote(PID);
+ 
+}
+
+        async function getPrice() {
+            const price = await SellerContract.pricePerEth();
+            console.log(price.toString());
+			alert(price.toString);
+            document.getElementById("PIDCount").setAttribute('value',price.toString()) ;
+        }
+
+        async function buy() {
+            signer = await provider.getSigner(accounts[1]);
+            console.log(signer);
+            BuyerContract = new ethers.Contract( BuyerContractAddress, BuyerContractABI, signer);
+            const amount = document.getElementById("PIDCount").value;
+            let bigAmount = ethers.BigNumber.from(amount).mul(ethers.BigNumber.from("1000000000000000000"));
+            await Buyer.buy({value: bigAmount});
+        }
+
+        async function doInitMetamask() {
+            SellerContractAddress = '0xD1DC832c19dfd0194e4604B9333d954788A84dAc';
+            
+            SellerContractABI = [
+  {
+    inputs: [ [Object] ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+    constant: undefined,
+    payable: undefined
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'Ods',
+    outputs: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    stateMutability: 'view',
+    type: 'function',
+    constant: true,
+    payable: undefined,
+    signature: '0xc282a3b5'
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'Prods',
+    outputs: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object]
+    ],
+    stateMutability: 'view',
+    type: 'function',
+    constant: true,
+    payable: undefined,
+    signature: '0x472d221c'
+  },
+  {
+    inputs: [ [Object], [Object], [Object], [Object] ],
+    name: 'addp',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+    constant: undefined,
+    payable: undefined,
+    signature: '0x1919af14'
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'reqQuote',
+    outputs: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    stateMutability: 'view',
+    type: 'function',
+    constant: true,
+    payable: undefined,
+    signature: '0x4c9b6c34'
+  },
+  {
+    inputs: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    name: 'Buy',
+    outputs: [ [Object], [Object] ],
+    stateMutability: 'payable',
+    type: 'function',
+    constant: undefined,
+    payable: true,
+    signature: '0x40ef9c81'
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'fv',
+    outputs: [ [Object], [Object], [Object], [Object], [Object] ],
+    stateMutability: 'view',
+    type: 'function',
+    constant: true,
+    payable: undefined,
+    signature: '0xac23a743'
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'giveAway',
+    outputs: [ [Object] ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+    constant: undefined,
+    payable: undefined,
+    signature: '0x2d4b2986'
+  },
+  {
+    inputs: [ [Object] ],
+    name: 'packedOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+    constant: undefined,
+    payable: undefined,
+    signature: '0x703eaa22'
+  }
+]
+
+
+
+            provider = new ethers.providers.Web3Provider(web3.currentProvider);
+
+            try {
+                await provider.send("eth_requestAccounts", []);
+            } catch {
+                console.log("Connection error");
+            }
+
+            accounts = await provider.listAccounts();
+            console.log(accounts);
+            
+            signer = await provider.getSigner(accounts[0]);
+            console.log(signer);
+
+            console.log(SellerContractAddress);
+            console.log(SellerContractABI);
+            
+            
+            SellerContract = new ethers.Contract( SellerContractAddress, SellerContractABI, signer);
+        }
+        doInitMetamask();
+    </script>
+   
+   
+</html> 

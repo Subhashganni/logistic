@@ -1,0 +1,6 @@
+const Buyer = artifacts.require("Buyer");
+
+
+module.exports = async function (deployer, network, accounts) {
+  await deployer.deploy(Buyer,accounts[1]);
+};

@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.4.22 <0.9.0;
+
+contract Seller{
+    uint PIDCount = 1;
+    address seller;
+    uint OIDCount = 1;
+    struct prod{
+        uint pid;
+        string name;
+        string desc;
+        uint pp;
+        string addrss;
+        bool sold;
+        address buyer;
+    }
+    mapping (uint => prod) public Prods;
+    struct od{
+        uint oid; 
+        uint pid;
+        string name;
+        uint pp;
+        address addrss;
+        bool odd;
+        bool pckd;
+        bool hovr;
+    }
+    mapping (uint => od) public Ods;
+
+    constructor(address sel) {
+        seller = sel;
+    }
+
+    modifier onlySeller() {
+        require(msg.sender == seller,"No-seller");
+        _;
+    }
+
+    struct byrdtl{
+        uint oid;
+        string name;
+        string addrss;
+        uint40 ph;
+        string email;
+    }
+    mapping (uint => byrdtl) internal Byrdtls;
+    
+    function addp(string memory name, string memory Desc,uint pp,string memory addrss) public onlySeller {
+        Prods[PIDCount] = prod(PIDCount,name,Desc,pp,addrss,false,address(0));
+        PIDCount++;
+    }
+
+    function reqQuote(uint _PID) external view returns (uint, string memory, string memory,uint, bool, address) { 
+        return (Prods[_PID].pid,Prods[_PID].name, Prods[_PID].desc,Prods[_PID].pp,Prods[_PID].sold,Prods[_PID].buyer);
+    }
+    function Buy(uint pID,address _Buyer,string memory _name, string memory _address,uint40 _phone,string memory _email) public payable returns (uint, address) {
+        Prods[pID].sold = true;
+        Prods[pID].buyer = _Buyer;
+        uint toPay = Prods[pID].pp;
+        Ods[OIDCount] = od(OIDCount,pID,Prods[pID].name,toPay,_Buyer,true,false,false);
+        Byrdtls[OIDCount] = byrdtl(OIDCount,_name,_address,_phone,_email);
+        OIDCount++;
+        return (toPay, seller);
+    }
+    function fv(uint oid) external view returns (uint,string memory,string memory,uint40,string memory){
+        return (Ods[oid].pid,Byrdtls[oid].name,Byrdtls[oid].addrss,Byrdtls[oid].ph,Byrdtls[oid].email);
+    }
+    function giveAway(uint oid) external returns (uint){
+        Ods[oid].hovr = true;
+        return (Ods[oid].pid);
+    }
+    function packedOrder(uint OID) public onlySeller {
+        Ods[OID].pckd = true;
+    }
+}
+
