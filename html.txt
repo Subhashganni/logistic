@@ -87,7 +87,7 @@ async function requestQuote() {
         }
 
         async function doInitMetamask() {
-            SellerContractAddress = '0xD1DC832c19dfd0194e4604B9333d954788A84dAc';
+            SellerContractAddress = '0x300194224d3F74dA94510c0a86C311a8FC5EC35D';
             
             SellerContractABI = [
   {
